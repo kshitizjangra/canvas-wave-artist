@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,5 +98,21 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+  
+  .text-ali {
+    color: #0ea5e9;
+  }
+  
+  .border-ali {
+    border-color: #0ea5e9;
+  }
+  
+  .bg-skin-base {
+    background-color: transparent;
+  }
+  
+  .animation-delay-8 {
+    animation-delay: 0.8s;
   }
 }
