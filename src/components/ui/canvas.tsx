@@ -117,6 +117,12 @@ Line.prototype = {
   },
 };
 
+// Define interfaces for better TypeScript support
+interface Position {
+  x: number;
+  y: number;
+}
+
 // @ts-ignore
 function onMousemove(e) {
   function o() {
@@ -175,15 +181,9 @@ function render() {
 
 function resizeCanvas() {
   // @ts-ignore
-  ctx.canvas.width = window.innerWidth - 20;
+  ctx.canvas.width = window.innerWidth;
   // @ts-ignore
   ctx.canvas.height = window.innerHeight;
-}
-
-// Define interfaces for better TypeScript support
-interface Position {
-  x: number;
-  y: number;
 }
 
 // @ts-ignore
@@ -198,7 +198,7 @@ var ctx,
   E = {
     debug: true,
     friction: 0.5,
-    trails: 80,
+    trails: 120,
     size: 50,
     dampening: 0.025,
     tension: 0.99,
@@ -238,4 +238,11 @@ export const renderCanvas = function () {
     ctx.running = true;
   });
   resizeCanvas();
+  
+  // Trigger initial render even without mouse movement
+  const event = new MouseEvent('mousemove', {
+    clientX: window.innerWidth / 2,
+    clientY: window.innerHeight / 2
+  });
+  onMousemove(event);
 };

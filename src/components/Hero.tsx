@@ -20,9 +20,6 @@ export function Hero() {
       <header className="z-10 p-4 flex justify-between items-center">
         <Logo />
         <div className="flex items-center gap-4">
-          <Link to="/about">
-            <Button variant="ghost">About</Button>
-          </Link>
           <Link to="/contact">
             <Button variant="ghost">Contact</Button>
           </Link>
@@ -75,17 +72,8 @@ export function Hero() {
               </div>
             </div>
           </div>
-
-          <h1 className="mt-8 text-2xl md:text-2xl">
-            Experience mathematics through AI-powered visualizations, 
-            <span className="text-ali font-bold"> voice control</span>, and collaborative learning
-          </h1>
-
-          <p className="md:text-md mx-auto mb-8 mt-2 max-w-2xl px-6 text-sm text-primary/60 sm:px-6 md:max-w-4xl md:px-20 lg:text-lg">
-            Make complex concepts intuitive and engaging with Zymatric's innovative approach to mathematical learning.
-          </p>
           
-          <div className="mx-auto max-w-md mb-8">
+          <div className="mx-auto max-w-md mb-8 mt-10">
             <WaitlistForm />
           </div>
           
