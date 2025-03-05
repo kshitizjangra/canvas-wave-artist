@@ -180,12 +180,19 @@ function resizeCanvas() {
   ctx.canvas.height = window.innerHeight;
 }
 
+// Define interfaces for better TypeScript support
+interface Position {
+  x: number;
+  y: number;
+}
+
 // @ts-ignore
 var ctx,
   // @ts-ignore
   f,
   e = 0,
-  pos = {},
+  // Initialize pos with x and y properties
+  pos: Position = { x: 0, y: 0 },
   // @ts-ignore
   lines = [],
   E = {
