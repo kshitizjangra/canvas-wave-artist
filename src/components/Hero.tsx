@@ -56,7 +56,6 @@ export function Hero() {
                 <Typewriter 
                   text={[
                     "Visualize Mathematics Like Never Before",
-                    "Experience mathematics through AI-powered visualizations",
                     "Make complex concepts intuitive and engaging"
                   ]} 
                   delay={100} 
@@ -78,11 +77,6 @@ export function Hero() {
           </div>
           
           <div className="flex justify-center gap-2">
-            <Link to="/dashboard">
-              <Button variant="default" size="lg">
-                Learn More
-              </Button>
-            </Link>
             <a href="https://cal.com/zymatric/demo" target="_blank" rel="noreferrer">
               <Button variant="outline" size="lg">
                 Book a Demo
