@@ -33,16 +33,6 @@ export function Hero() {
         <div className="z-10 mb-6 mt-10 sm:justify-center md:mb-4 md:mt-10">
           <div className="relative flex items-center whitespace-nowrap rounded-full border bg-popover px-3 py-1 text-xs leading-6 text-primary/60">
             <DIcons.Shapes className="h-5 p-1" /> Introducing Zymatric.
-            <Link
-              to="/products/dicons"
-              className="hover:text-ali ml-1 flex items-center font-semibold"
-            >
-              <div className="absolute inset-0 flex" aria-hidden="true" />
-              Explore{" "}
-              <span aria-hidden="true">
-                <DIcons.ArrowRight className="h-4 w-4" />
-              </span>
-            </Link>
           </div>
         </div>
 
@@ -68,10 +58,9 @@ export function Hero() {
                 />
                 <Typewriter 
                   text={[
-                    "Your complete platform for the Design.",
-                    "Innovative solutions for tomorrow.",
-                    "Transforming ideas into reality.",
-                    "The future of technology is here."
+                    "Visualize Mathematics Like Never Before",
+                    "Experience mathematics through AI-powered visualizations",
+                    "Make complex concepts intuitive and engaging"
                   ]} 
                   delay={100} 
                   loop={true}
@@ -88,12 +77,12 @@ export function Hero() {
           </div>
 
           <h1 className="mt-8 text-2xl md:text-2xl">
-            Welcome to our innovative platform{" "}
-            <span className="text-ali font-bold">Zymatric</span>
+            Experience mathematics through AI-powered visualizations, 
+            <span className="text-ali font-bold"> voice control</span>, and collaborative learning
           </h1>
 
           <p className="md:text-md mx-auto mb-8 mt-2 max-w-2xl px-6 text-sm text-primary/60 sm:px-6 md:max-w-4xl md:px-20 lg:text-lg">
-            We're crafting the next generation of design tools and solutions to empower creators worldwide.
+            Make complex concepts intuitive and engaging with Zymatric's innovative approach to mathematical learning.
           </p>
           
           <div className="mx-auto max-w-md mb-8">
