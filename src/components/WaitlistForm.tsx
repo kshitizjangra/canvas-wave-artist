@@ -3,12 +3,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [accessKey, setAccessKey] = useState("");
   const [step, setStep] = useState(1);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +50,10 @@ export function WaitlistForm() {
     });
     
     setStep(3);
+  };
+
+  const handleGetStarted = () => {
+    navigate("/auth");
   };
   
   return (
@@ -99,7 +105,7 @@ export function WaitlistForm() {
             Your access has been confirmed. Start exploring our platform.
           </p>
           
-          <Button className="w-full">Get Started</Button>
+          <Button className="w-full" onClick={handleGetStarted}>Get Started</Button>
         </div>
       )}
     </div>
