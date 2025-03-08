@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { renderCanvas } from "@/components/ui/canvas";
 import { useEffect } from "react";
+import { Footer } from "@/components/Footer";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +19,7 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -100,6 +101,9 @@ const Auth = () => {
         <div className="flex items-center gap-4">
           <Link to="/">
             <Button variant="ghost">Home</Button>
+          </Link>
+          <Link to="/contact">
+            <Button variant="ghost">Contact</Button>
           </Link>
         </div>
       </header>
@@ -230,6 +234,8 @@ const Auth = () => {
           </Tabs>
         </div>
       </div>
+      
+      <Footer />
       
       <canvas
         className="bg-skin-base pointer-events-none absolute inset-0 mx-auto"

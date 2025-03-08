@@ -5,8 +5,11 @@ import { Logo } from "@/components/Logo";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Contact = () => {
+  const { user } = useAuth();
+  
   useEffect(() => {
     renderCanvas();
   }, []);
@@ -21,6 +24,15 @@ const Contact = () => {
           <Link to="/">
             <Button variant="ghost">Home</Button>
           </Link>
+          {user ? (
+            <Link to="/dashboard">
+              <Button variant="ghost">Dashboard</Button>
+            </Link>
+          ) : (
+            <Link to="/auth">
+              <Button variant="ghost">Login</Button>
+            </Link>
+          )}
         </div>
       </header>
 

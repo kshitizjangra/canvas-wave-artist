@@ -9,8 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/Typewriter";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import { Logo } from "@/components/Logo";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Hero() {
+  const { user } = useAuth();
+  
   useEffect(() => {
     renderCanvas();
   }, []);
@@ -20,6 +23,18 @@ export function Hero() {
       <header className="z-10 p-4 flex justify-between items-center">
         <Logo />
         <div className="flex items-center gap-4">
+          <Link to="/">
+            <Button variant="ghost">Home</Button>
+          </Link>
+          {user ? (
+            <Link to="/dashboard">
+              <Button variant="ghost">Dashboard</Button>
+            </Link>
+          ) : (
+            <Link to="/auth">
+              <Button variant="ghost">Login</Button>
+            </Link>
+          )}
           <Link to="/contact">
             <Button variant="ghost">Contact</Button>
           </Link>
