@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,6 @@ import { DIcons } from "@/components/DIcons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { renderCanvas } from "@/components/ui/canvas";
-import { useEffect } from "react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -18,12 +17,17 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     renderCanvas();
-  }, []);
+    // If user is already logged in, redirect to dashboard
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +42,8 @@ const Auth = () => {
           description: error.message || "Please try again",
           variant: "destructive",
         });
+      } else {
+        navigate("/dashboard");
       }
     } catch (error) {
       toast({
@@ -81,6 +87,7 @@ const Auth = () => {
           title: "Registration successful",
           description: "Please check your email for verification",
         });
+        navigate("/dashboard");
       }
     } catch (error) {
       toast({
