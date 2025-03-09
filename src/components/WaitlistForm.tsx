@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
@@ -28,23 +27,15 @@ export function WaitlistForm() {
     setIsSubmitting(true);
     
     try {
-      // Call the edge function to send confirmation email
-      const { error } = await supabase.functions.invoke('send-confirmation', {
-        body: { email },
-      });
-      
-      if (error) {
-        throw error;
-      }
-      
+      // Simply proceed to next step without sending email
       toast({
         title: "Thanks for showing interest!",
-        description: "We've sent you an email with more information. You will soon get access. Check your email for updates.",
+        description: "You will soon get access. Check back later for updates.",
       });
       
       setStep(2);
     } catch (error) {
-      console.error("Error sending confirmation email:", error);
+      console.error("Error processing request:", error);
       toast({
         title: "Something went wrong",
         description: "We couldn't process your request. Please try again later.",
