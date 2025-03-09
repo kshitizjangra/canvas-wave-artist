@@ -4,15 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [accessKey, setAccessKey] = useState("");
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !email.includes('@')) {
       toast({
@@ -23,12 +25,34 @@ export function WaitlistForm() {
       return;
     }
     
-    toast({
-      title: "Thanks for showing interest!",
-      description: "You will soon get access. Check your email for updates.",
-    });
+    setIsSubmitting(true);
     
-    setStep(2);
+    try {
+      // Call the edge function to send confirmation email
+      const { error } = await supabase.functions.invoke('send-confirmation', {
+        body: { email },
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Thanks for showing interest!",
+        description: "We've sent you an email with more information. You will soon get access. Check your email for updates.",
+      });
+      
+      setStep(2);
+    } catch (error) {
+      console.error("Error sending confirmation email:", error);
+      toast({
+        title: "Something went wrong",
+        description: "We couldn't process your request. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   const handleKeySubmit = (e: React.FormEvent) => {
@@ -69,11 +93,14 @@ export function WaitlistForm() {
               placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isSubmitting}
               required
             />
           </div>
           
-          <Button type="submit" className="w-full">Join Waitlist</Button>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Join Waitlist"}
+          </Button>
         </form>
       )}
       
