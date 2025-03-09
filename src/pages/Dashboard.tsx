@@ -23,7 +23,8 @@ import {
   Plus, 
   Download, 
   UploadCloud, 
-  CheckCircle
+  CheckCircle,
+  Sparkles
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -123,7 +124,7 @@ const DashboardSidebar = () => {
 };
 
 // Create Dashboard header component
-const DashboardHeader = () => {
+export const DashboardHeader = () => {
   const { signOut, user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -155,10 +156,16 @@ const DashboardHeader = () => {
       </div>
       
       <nav className="flex items-center gap-2">
-        <Link to="/">
+        <Link to="/dashboard">
           <Button variant="ghost" size="sm" className="hidden md:flex">
             <LayoutDashboard className="h-4 w-4 mr-2" />
             Dashboard
+          </Button>
+        </Link>
+        <Link to="/ai-graphing">
+          <Button variant="ghost" size="sm" className="hidden md:flex">
+            <Sparkles className="h-4 w-4 mr-2" />
+            AI Graphing
           </Button>
         </Link>
         <Button variant="ghost" size="sm" className="hidden md:flex">
