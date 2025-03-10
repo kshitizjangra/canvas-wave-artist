@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
 
 export function Logo() {
   const [displayText, setDisplayText] = useState("");
@@ -59,6 +60,7 @@ export function Logo() {
   return (
     <div className="relative z-20">
       <h1 className="text-2xl font-bold text-primary flex items-center">
+        <Sparkles className="h-5 w-5 mr-1 text-[#0ea5e9]" />
         {displayText}
         <span 
           className={cn(
@@ -79,10 +81,10 @@ export function Logo() {
         >
         </span>
         {!isTyping && displayText.length === 0 ? (
-          <span className="text-ali font-bold">.</span>
+          <span className="text-[#0ea5e9] font-bold">.</span>
         ) : (
           displayText.length === fullText.length && isTyping && (
-            <span className="text-ali font-bold">.</span>
+            <span className="text-[#0ea5e9] font-bold">.</span>
           )
         )}
       </h1>

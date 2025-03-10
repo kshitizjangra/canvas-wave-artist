@@ -18,6 +18,13 @@ export function Hero() {
     renderCanvas();
   }, []);
 
+  const scrollToPricing = () => {
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="home" className="min-h-screen flex flex-col">
       <header className="z-10 p-4 flex justify-between items-center">
@@ -26,6 +33,9 @@ export function Hero() {
           <Link to="/">
             <Button variant="ghost">Home</Button>
           </Link>
+          <Button variant="ghost" onClick={scrollToPricing}>
+            Pricing
+          </Button>
           {user ? (
             <Link to="/dashboard">
               <Button variant="ghost">Dashboard</Button>
