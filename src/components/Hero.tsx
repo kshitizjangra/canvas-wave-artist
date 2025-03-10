@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect } from "react";
@@ -10,13 +9,24 @@ import { Typewriter } from "@/components/Typewriter";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
+import { CursorCustomizer } from '@/components/CursorCustomizer';
+import { useCursor } from '@/contexts/CursorContext';
 
 export function Hero() {
   const { user } = useAuth();
+  const { cursorStyle, userName } = useCursor();
   
   useEffect(() => {
     renderCanvas();
   }, []);
+
+  useEffect(() => {
+    if (cursorStyle !== 'default') {
+      document.body.style.cursor = cursorStyle;
+    } else {
+      document.body.style.cursor = 'auto';
+    }
+  }, [cursorStyle]);
 
   const scrollToPricing = () => {
     const pricingSection = document.getElementById('pricing');
@@ -53,12 +63,15 @@ export function Hero() {
 
       <div className="animation-delay-8 animate-fadeIn mt-10 flex flex-col items-center justify-center px-4 text-center md:mt-20 flex-grow">
         <div className="z-10 mb-6 mt-10 sm:justify-center md:mb-4 md:mt-10">
-          <div className="relative flex items-center whitespace-nowrap rounded-full border bg-popover px-3 py-1 text-xs leading-6 text-primary/60">
-            <DIcons.Shapes className="h-5 p-1" /> Introducing Zymatric.
-          </div>
+          <CursorCustomizer />
         </div>
 
         <div className="mb-10 mt-4 md:mt-6">
+          {userName && (
+            <div className="text-sm text-primary/60 mb-4">
+              Welcome, {userName}!
+            </div>
+          )}
           <div className="px-2">
             <div className="border-ali relative mx-auto h-full max-w-7xl border p-6 [mask-image:radial-gradient(800rem_96rem_at_center,white,transparent)] md:px-12 md:py-20">
               <h1 className="flex select-none flex-col px-3 py-2 text-center text-5xl font-semibold leading-none tracking-tight md:flex-col md:text-8xl lg:flex-row lg:text-8xl">

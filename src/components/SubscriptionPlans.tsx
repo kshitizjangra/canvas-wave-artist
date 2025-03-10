@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,8 +33,7 @@ export function SubscriptionPlans() {
         "Custom branding"
       ],
       buttonText: "Upgrade to Pro",
-      buttonVariant: "default" as const,
-      popular: true
+      buttonVariant: "default" as const
     },
     {
       name: "Enterprise",
@@ -69,12 +67,7 @@ export function SubscriptionPlans() {
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mt-8">
           {plans.map((plan) => (
-            <Card key={plan.name} className={plan.popular ? "border-primary shadow-lg" : ""}>
-              {plan.popular && (
-                <div className="absolute -top-3 left-0 right-0 mx-auto w-fit rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-                  Popular
-                </div>
-              )}
+            <Card key={plan.name}>
               <CardHeader className="pb-1">
                 <CardTitle className="text-xl">{plan.name}</CardTitle>
                 <div className="flex items-baseline">
