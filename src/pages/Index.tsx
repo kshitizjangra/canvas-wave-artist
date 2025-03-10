@@ -2,6 +2,7 @@
 import { Hero } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
 import { SubscriptionPlans } from "@/components/SubscriptionPlans";
+import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
   return (
@@ -9,6 +10,7 @@ const Index = () => {
       <Hero />
       <SubscriptionPlans />
       <Footer />
+      <Toaster />
     </div>
   );
 };
