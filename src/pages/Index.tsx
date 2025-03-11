@@ -2,17 +2,17 @@
 import { Hero } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
 import { SubscriptionPlans } from "@/components/SubscriptionPlans";
-import { CursorProvider } from "@/contexts/CursorContext";
+import { GlobalCursor } from "@/components/GlobalCursor";
 
 const Index = () => {
   return (
-    <CursorProvider>
+    <GlobalCursor>
       <div className="min-h-screen bg-background flex flex-col">
         <Hero />
         <SubscriptionPlans />
         <Footer />
       </div>
-    </CursorProvider>
+    </GlobalCursor>
   );
 };
 

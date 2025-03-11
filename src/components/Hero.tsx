@@ -12,28 +12,23 @@ import { Logo } from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
 import { CursorCustomizer } from '@/components/CursorCustomizer';
 import { useCursor } from '@/contexts/CursorContext';
-import { Pointer } from "@/components/ui/custom-cursor";
 
 export function Hero() {
   const { user } = useAuth();
-  const { cursorStyle, userName, showCustomCursor } = useCursor();
+  const { userName } = useCursor();
   
   useEffect(() => {
+    // Initialize the canvas for the hero section only
     renderCanvas();
     
-    // Reset cursor when component unmounts
+    // Cleanup when component unmounts
     return () => {
-      document.body.style.cursor = 'auto';
+      const canvas = document.getElementById('canvas');
+      if (canvas) {
+        canvas.style.display = 'none';
+      }
     };
   }, []);
-
-  useEffect(() => {
-    if (!showCustomCursor && cursorStyle !== 'default') {
-      document.body.style.cursor = cursorStyle;
-    } else {
-      document.body.style.cursor = 'auto';
-    }
-  }, [cursorStyle, showCustomCursor]);
 
   const scrollToPricing = () => {
     const pricingSection = document.getElementById('pricing');
@@ -41,71 +36,6 @@ export function Hero() {
       pricingSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
-
-  const HeroContent = () => (
-    <div className="animation-delay-8 animate-fadeIn mt-10 flex flex-col items-center justify-center px-4 text-center md:mt-20 flex-grow">
-      <div className="z-10 mb-6 mt-10 sm:justify-center md:mb-4 md:mt-10">
-        <CursorCustomizer />
-      </div>
-
-      <div className="mb-10 mt-4 md:mt-6">
-        {userName && (
-          <div className="text-sm text-primary/60 mb-4">
-            Welcome, {userName}!
-          </div>
-        )}
-        <div className="px-2">
-          <div className="border-ali relative mx-auto h-full max-w-7xl border p-6 [mask-image:radial-gradient(800rem_96rem_at_center,white,transparent)] md:px-12 md:py-20">
-            <h1 className="flex select-none flex-col px-3 py-2 text-center text-5xl font-semibold leading-none tracking-tight md:flex-col md:text-8xl lg:flex-row lg:text-8xl">
-              <DIcons.Plus
-                strokeWidth={4}
-                className="text-ali absolute -left-5 -top-5 h-10 w-10"
-              />
-              <DIcons.Plus
-                strokeWidth={4}
-                className="text-ali absolute -bottom-5 -left-5 h-10 w-10"
-              />
-              <DIcons.Plus
-                strokeWidth={4}
-                className="text-ali absolute -right-5 -top-5 h-10 w-10"
-              />
-              <DIcons.Plus
-                strokeWidth={4}
-                className="text-ali absolute -bottom-5 -right-5 h-10 w-10"
-              />
-              <Typewriter 
-                text={[
-                  "Visualize Mathematics Like Never Before",
-                  "Make complex concepts intuitive and engaging"
-                ]} 
-                delay={100} 
-                loop={true}
-              />
-            </h1>
-            <div className="flex items-center justify-center gap-1">
-              <span className="relative flex h-3 w-3 items-center justify-center">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
-              </span>
-              <p className="text-xs text-green-500">Coming Soon - 2025</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="mx-auto max-w-md mb-8 mt-10">
-          <WaitlistForm />
-        </div>
-        
-        <div className="flex justify-center gap-2">
-          <a href="https://cal.com/zymatric/demo" target="_blank" rel="noreferrer">
-            <Button variant="outline" size="lg">
-              Book a Demo
-            </Button>
-          </a>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <section id="home" className="min-h-screen flex flex-col">
@@ -133,13 +63,68 @@ export function Hero() {
         </div>
       </header>
 
-      {showCustomCursor ? (
-        <Pointer name={userName || "Guest"} className="flex-grow">
-          <HeroContent />
-        </Pointer>
-      ) : (
-        <HeroContent />
-      )}
+      <div className="animation-delay-8 animate-fadeIn mt-10 flex flex-col items-center justify-center px-4 text-center md:mt-20 flex-grow">
+        <div className="z-10 mb-6 mt-10 sm:justify-center md:mb-4 md:mt-10">
+          <CursorCustomizer />
+        </div>
+
+        <div className="mb-10 mt-4 md:mt-6">
+          {userName && (
+            <div className="text-sm text-primary/60 mb-4">
+              Welcome, {userName}!
+            </div>
+          )}
+          <div className="px-2">
+            <div className="border-ali relative mx-auto h-full max-w-7xl border p-6 [mask-image:radial-gradient(800rem_96rem_at_center,white,transparent)] md:px-12 md:py-20">
+              <h1 className="flex select-none flex-col px-3 py-2 text-center text-5xl font-semibold leading-none tracking-tight md:flex-col md:text-8xl lg:flex-row lg:text-8xl">
+                <DIcons.Plus
+                  strokeWidth={4}
+                  className="text-ali absolute -left-5 -top-5 h-10 w-10"
+                />
+                <DIcons.Plus
+                  strokeWidth={4}
+                  className="text-ali absolute -bottom-5 -left-5 h-10 w-10"
+                />
+                <DIcons.Plus
+                  strokeWidth={4}
+                  className="text-ali absolute -right-5 -top-5 h-10 w-10"
+                />
+                <DIcons.Plus
+                  strokeWidth={4}
+                  className="text-ali absolute -bottom-5 -right-5 h-10 w-10"
+                />
+                <Typewriter 
+                  text={[
+                    "Visualize Mathematics Like Never Before",
+                    "Make complex concepts intuitive and engaging"
+                  ]} 
+                  delay={100} 
+                  loop={true}
+                />
+              </h1>
+              <div className="flex items-center justify-center gap-1">
+                <span className="relative flex h-3 w-3 items-center justify-center">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+                </span>
+                <p className="text-xs text-green-500">Coming Soon - 2025</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mx-auto max-w-md mb-8 mt-10">
+            <WaitlistForm />
+          </div>
+          
+          <div className="flex justify-center gap-2">
+            <a href="https://cal.com/zymatric/demo" target="_blank" rel="noreferrer">
+              <Button variant="outline" size="lg">
+                Book a Demo
+              </Button>
+            </a>
+          </div>
+        </div>
+      </div>
       
       <canvas
         className="bg-skin-base pointer-events-none absolute inset-0 mx-auto"
