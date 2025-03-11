@@ -11,7 +11,10 @@ export const GlobalCursor: React.FC<GlobalCursorProps> = ({ children }) => {
   const { showCustomCursor, userName, cursorStyle } = useCursor();
 
   useEffect(() => {
-    if (!showCustomCursor && cursorStyle !== 'default') {
+    if (showCustomCursor) {
+      // When custom cursor is active, hide the native cursor
+      document.body.style.cursor = 'none';
+    } else if (cursorStyle !== 'default') {
       document.body.style.cursor = cursorStyle;
     } else {
       document.body.style.cursor = 'auto';
