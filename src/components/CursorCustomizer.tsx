@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,20 +7,32 @@ import { Label } from "@/components/ui/label";
 import { useCursor } from '@/contexts/CursorContext';
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Check } from "lucide-react";
+import { Check, Volume2, VolumeX } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent } from '@/components/ui/card';
 
 export function CursorCustomizer() {
-  const { setUserName, userName, setShowCustomCursor, showCustomCursor } = useCursor();
+  const { setUserName, userName, setShowCustomCursor } = useCursor();
   const [nameInput, setNameInput] = useState(userName);
   const [open, setOpen] = useState(false);
   const [showCanvas, setShowCanvas] = useState(true);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [customAudioUrl, setCustomAudioUrl] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState([75]);
   const { toast } = useToast();
   const audioRef = React.useRef<HTMLAudioElement>(null);
+  const { user } = useAuth();
+
+  // Load user name from auth if available
+  useEffect(() => {
+    if (user && user.user_metadata?.full_name) {
+      setNameInput(user.user_metadata.full_name);
+      setUserName(user.user_metadata.full_name);
+    }
+  }, [user, setUserName]);
 
   const handleSave = () => {
     if (nameInput.trim()) {
@@ -35,6 +47,7 @@ export function CursorCustomizer() {
           </div>
         ),
       });
+      setOpen(false);
     }
   };
 
@@ -62,12 +75,29 @@ export function CursorCustomizer() {
     }
   };
 
+  const handleCustomUrlAdd = () => {
+    if (customAudioUrl.trim()) {
+      setAudioUrl(customAudioUrl);
+      localStorage.setItem('backgroundMusicUrl', customAudioUrl);
+      toast({
+        title: "Music URL added",
+        description: "Your background music has been set from URL",
+      });
+    }
+  };
+
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        audioRef.current.play().catch(error => {
+          toast({
+            title: "Playback error",
+            description: "There was an error playing this audio file. Try another one.",
+            variant: "destructive",
+          });
+        });
       }
       setIsPlaying(!isPlaying);
     }
@@ -86,19 +116,39 @@ export function CursorCustomizer() {
     if (savedAudioUrl) {
       setAudioUrl(savedAudioUrl);
     }
+
+    // Set volume when component loads
+    if (audioRef.current) {
+      audioRef.current.volume = volume[0] / 100;
+    }
   }, []);
+
+  // Disable custom cursor by default
+  useEffect(() => {
+    setShowCustomCursor(false);
+  }, [setShowCustomCursor]);
 
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <div className="relative flex items-center whitespace-nowrap rounded-full border bg-popover px-3 py-1 text-xs leading-6 text-primary/60 hover:bg-accent cursor-pointer">
-            <div className="flex items-center gap-1">
-              Introducing Zymatric
-            </div>
-          </div>
+          <Card className="cursor-pointer hover:shadow-md transition-all duration-300 border-gradient-to-r from-blue-500 to-purple-500 overflow-hidden">
+            <CardContent className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30">
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-2 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium text-sm">Welcome to Zymatric</h3>
+                  <p className="text-xs text-muted-foreground">{userName || "Guest"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Customize Your Experience</DialogTitle>
             <DialogDescription>Personalize your interaction with Zymatric</DialogDescription>
@@ -120,15 +170,6 @@ export function CursorCustomizer() {
                 />
                 <Button onClick={handleSave}>Save</Button>
               </div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <Label htmlFor="custom-cursor">Custom Cursor</Label>
-              <Switch
-                id="custom-cursor"
-                checked={showCustomCursor}
-                onCheckedChange={setShowCustomCursor}
-              />
             </div>
             
             <div className="flex items-center justify-between">
@@ -160,41 +201,37 @@ export function CursorCustomizer() {
                 )}
               </div>
               
+              <div className="flex gap-2 mt-2">
+                <Input
+                  placeholder="Or enter audio URL"
+                  value={customAudioUrl}
+                  onChange={(e) => setCustomAudioUrl(e.target.value)}
+                />
+                <Button onClick={handleCustomUrlAdd}>Add</Button>
+              </div>
+              
               {audioUrl && (
-                <div className="mt-2">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <Label className="leading-6">Volume</Label>
-                      <output className="text-sm font-medium tabular-nums">{volume[0]}</output>
-                    </div>
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Label className="leading-6">Volume</Label>
+                    <output className="text-sm font-medium tabular-nums">{volume[0]}%</output>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <VolumeX className="shrink-0 opacity-60" size={16} strokeWidth={2} aria-hidden="true" />
                     <Slider 
                       value={volume} 
-                      onValueChange={(v) => handleVolumeChange(v)} 
+                      onValueChange={handleVolumeChange} 
                       min={0} 
                       max={100} 
                       step={1}
                       showTooltip={true}
                       tooltipContent={(value) => `${value}%`}
                     />
+                    <Volume2 className="shrink-0 opacity-60" size={16} strokeWidth={2} aria-hidden="true" />
                   </div>
                 </div>
               )}
             </div>
-            
-            {!showCustomCursor && (
-              <div className="grid gap-2">
-                <Label>Default Cursor Style</Label>
-                <div className="grid grid-cols-1 gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {}}
-                    className="cursor-pointer flex justify-between items-center"
-                  >
-                    Default <span className="h-4 w-4">🖱️</span>
-                  </Button>
-                </div>
-              </div>
-            )}
           </div>
         </DialogContent>
       </Dialog>
