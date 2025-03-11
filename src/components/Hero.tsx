@@ -20,6 +20,11 @@ export function Hero() {
   
   useEffect(() => {
     renderCanvas();
+    
+    // Reset cursor when component unmounts
+    return () => {
+      document.body.style.cursor = 'auto';
+    };
   }, []);
 
   useEffect(() => {
@@ -28,11 +33,6 @@ export function Hero() {
     } else {
       document.body.style.cursor = 'auto';
     }
-    
-    // Cleanup function to reset cursor when navigating away from homepage
-    return () => {
-      document.body.style.cursor = 'auto';
-    };
   }, [cursorStyle, showCustomCursor]);
 
   const scrollToPricing = () => {

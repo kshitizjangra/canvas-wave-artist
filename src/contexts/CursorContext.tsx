@@ -11,7 +11,7 @@ interface CursorContextType {
 }
 
 const CursorContext = createContext<CursorContextType>({
-  cursorStyle: 'default',
+  cursorStyle: 'blue',
   userName: 'Guest',
   showCustomCursor: true,
   setCursorStyle: () => {},
@@ -20,7 +20,7 @@ const CursorContext = createContext<CursorContextType>({
 });
 
 export function CursorProvider({ children }: { children: React.ReactNode }) {
-  const [cursorStyle, setCursorStyle] = useState('default');
+  const [cursorStyle, setCursorStyle] = useState('blue');
   const [userName, setUserName] = useState('Guest');
   const [showCustomCursor, setShowCustomCursor] = useState(true);
 

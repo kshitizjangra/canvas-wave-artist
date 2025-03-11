@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCursor } from '@/contexts/CursorContext';
-import { MousePointer } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 export function CursorCustomizer() {
@@ -15,7 +14,9 @@ export function CursorCustomizer() {
   const [showCanvas, setShowCanvas] = useState(true);
 
   const handleSave = () => {
-    setUserName(nameInput);
+    if (nameInput.trim()) {
+      setUserName(nameInput);
+    }
     // Don't close dialog
   };
 
@@ -52,6 +53,11 @@ export function CursorCustomizer() {
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 placeholder="Enter your name"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSave();
+                  }
+                }}
               />
               <Button onClick={handleSave}>Save</Button>
             </div>
@@ -84,7 +90,7 @@ export function CursorCustomizer() {
                   onClick={() => {}}
                   className="cursor-pointer flex justify-between items-center"
                 >
-                  Default <MousePointer className="h-4 w-4" />
+                  Default <span className="h-4 w-4">🖱️</span>
                 </Button>
               </div>
             </div>
