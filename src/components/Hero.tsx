@@ -28,6 +28,11 @@ export function Hero() {
     } else {
       document.body.style.cursor = 'auto';
     }
+    
+    // Cleanup function to reset cursor when navigating away from homepage
+    return () => {
+      document.body.style.cursor = 'auto';
+    };
   }, [cursorStyle, showCustomCursor]);
 
   const scrollToPricing = () => {
@@ -129,7 +134,7 @@ export function Hero() {
       </header>
 
       {showCustomCursor ? (
-        <Pointer name={userName || "Tony"} className="flex-grow">
+        <Pointer name={userName || "Guest"} className="flex-grow">
           <HeroContent />
         </Pointer>
       ) : (

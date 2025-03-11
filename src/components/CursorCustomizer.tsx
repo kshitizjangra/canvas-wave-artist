@@ -1,26 +1,36 @@
 
-import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCursor } from '@/contexts/CursorContext';
-import { MousePointer, Crosshair, Type, Move } from "lucide-react";
+import { MousePointer } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
-const cursorStyles = [
-  { id: 'default', name: 'Default', icon: <MousePointer className="h-4 w-4" /> },
-  { id: 'pointer', name: 'Pointer', icon: <MousePointer className="h-4 w-4" /> },
-  { id: 'crosshair', name: 'Crosshair', icon: <Crosshair className="h-4 w-4" /> },
-  { id: 'text', name: 'Text', icon: <Type className="h-4 w-4" /> },
-  { id: 'move', name: 'Move', icon: <Move className="h-4 w-4" /> }
-];
-
 export function CursorCustomizer() {
-  const { setCursorStyle, setUserName, userName, setShowCustomCursor, showCustomCursor } = useCursor();
+  const { setUserName, userName, setShowCustomCursor, showCustomCursor } = useCursor();
+  const [nameInput, setNameInput] = useState(userName);
+  const [open, setOpen] = useState(false);
+  const [showCanvas, setShowCanvas] = useState(true);
+
+  const handleSave = () => {
+    setUserName(nameInput);
+    // Don't close dialog
+  };
+
+  const handleCanvasToggle = (checked: boolean) => {
+    setShowCanvas(checked);
+    
+    // Toggle canvas visibility by manipulating the canvas element
+    const canvas = document.getElementById('canvas');
+    if (canvas) {
+      canvas.style.display = checked ? 'block' : 'none';
+    }
+  };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <div className="relative flex items-center whitespace-nowrap rounded-full border bg-popover px-3 py-1 text-xs leading-6 text-primary/60 hover:bg-accent cursor-pointer">
           <div className="flex items-center gap-1">
@@ -31,20 +41,24 @@ export function CursorCustomizer() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Customize Your Experience</DialogTitle>
+          <DialogDescription>Personalize your interaction with Zymatric</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="name">Your Name</Label>
-            <Input
-              id="name"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              placeholder="Enter your name"
-            />
+            <div className="flex gap-2">
+              <Input
+                id="name"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                placeholder="Enter your name"
+              />
+              <Button onClick={handleSave}>Save</Button>
+            </div>
           </div>
           
           <div className="flex items-center justify-between">
-            <Label htmlFor="custom-cursor">Enable Custom Cursor</Label>
+            <Label htmlFor="custom-cursor">Custom Cursor</Label>
             <Switch
               id="custom-cursor"
               checked={showCustomCursor}
@@ -52,20 +66,26 @@ export function CursorCustomizer() {
             />
           </div>
           
+          <div className="flex items-center justify-between">
+            <Label htmlFor="canvas-effect">Canvas Animation Effect</Label>
+            <Switch
+              id="canvas-effect"
+              checked={showCanvas}
+              onCheckedChange={handleCanvasToggle}
+            />
+          </div>
+          
           {!showCustomCursor && (
             <div className="grid gap-2">
-              <Label>Cursor Style</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {cursorStyles.map((style) => (
-                  <Button
-                    key={style.id}
-                    variant="outline"
-                    onClick={() => setCursorStyle(style.id)}
-                    className="cursor-pointer flex justify-between items-center"
-                  >
-                    {style.name} {style.icon}
-                  </Button>
-                ))}
+              <Label>Default Cursor Style</Label>
+              <div className="grid grid-cols-1 gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {}}
+                  className="cursor-pointer flex justify-between items-center"
+                >
+                  Default <MousePointer className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           )}
