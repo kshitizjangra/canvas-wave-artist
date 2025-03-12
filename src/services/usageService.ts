@@ -20,11 +20,18 @@ export const useUsageService = () => {
 
   const logUsage = async (duration: number, activityType: string): Promise<boolean> => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
       const { error } = await supabase
         .from('usage_logs')
         .insert({
           session_duration: duration,
           activity_type: activityType,
+          user_id: user.id,
         });
 
       if (error) {
