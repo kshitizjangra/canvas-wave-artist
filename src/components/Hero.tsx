@@ -15,11 +15,18 @@ import { useCursor } from '@/contexts/CursorContext';
 
 export function Hero() {
   const { user } = useAuth();
-  const { userName } = useCursor();
+  const { userName, showCanvas } = useCursor();
   
   useEffect(() => {
-    // Initialize the canvas for the hero section only
-    renderCanvas();
+    // Initialize the canvas for the hero section only if showCanvas is true
+    if (showCanvas) {
+      renderCanvas();
+    } else {
+      const canvas = document.getElementById('canvas');
+      if (canvas) {
+        canvas.style.display = 'none';
+      }
+    }
     
     // Cleanup when component unmounts
     return () => {
@@ -28,7 +35,7 @@ export function Hero() {
         canvas.style.display = 'none';
       }
     };
-  }, []);
+  }, [showCanvas]);
 
   const scrollToPricing = () => {
     const pricingSection = document.getElementById('pricing');
@@ -70,7 +77,7 @@ export function Hero() {
 
         <div className="mb-10 mt-4 md:mt-6">
           {userName && (
-            <div className="text-sm text-primary/60 mb-4">
+            <div className="text-sm text-primary/80 mb-4 font-medium">
               Welcome, {userName}!
             </div>
           )}
@@ -129,6 +136,7 @@ export function Hero() {
       <canvas
         className="bg-skin-base pointer-events-none absolute inset-0 mx-auto"
         id="canvas"
+        style={{ display: showCanvas ? 'block' : 'none' }}
       ></canvas>
     </section>
   );

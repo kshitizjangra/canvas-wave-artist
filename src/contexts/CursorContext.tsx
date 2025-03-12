@@ -3,31 +3,26 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface CursorContextType {
-  cursorStyle: string;
   userName: string;
-  showCustomCursor: boolean;
-  setCursorStyle: (style: string) => void;
+  showCanvas: boolean;
   setUserName: (name: string) => void;
-  setShowCustomCursor: (show: boolean) => void;
+  setShowCanvas: (show: boolean) => void;
 }
 
 const CursorContext = createContext<CursorContextType>({
-  cursorStyle: 'default',
   userName: 'Guest',
-  showCustomCursor: false,
-  setCursorStyle: () => {},
+  showCanvas: true,
   setUserName: () => {},
-  setShowCustomCursor: () => {}
+  setShowCanvas: () => {}
 });
 
 export function CursorProvider({ children }: { children: React.ReactNode }) {
-  const [cursorStyle, setCursorStyle] = useState('default');
   const [userName, setUserName] = useState(() => {
     // Try to load from localStorage first
     const savedName = localStorage.getItem('userName');
     return savedName || 'Guest';
   });
-  const [showCustomCursor, setShowCustomCursor] = useState(false);
+  const [showCanvas, setShowCanvas] = useState(true);
   const { user } = useAuth();
 
   // When userName changes, save to localStorage
@@ -44,12 +39,10 @@ export function CursorProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CursorContext.Provider value={{ 
-      cursorStyle, 
       userName, 
-      showCustomCursor,
-      setCursorStyle, 
+      showCanvas,
       setUserName,
-      setShowCustomCursor
+      setShowCanvas
     }}>
       {children}
     </CursorContext.Provider>
