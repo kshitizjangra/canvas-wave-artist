@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Play, Pause, X, Volume2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Play, Pause, X, Volume2, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
@@ -25,57 +25,147 @@ export const MusicMiniPlayer: React.FC<MusicMiniPlayerProps> = ({
   audioSource,
   onClose
 }) => {
-  // Determine which logo to show based on the audio source URL
-  const getSourceLogo = () => {
-    const url = audioSource.toLowerCase();
-    if (url.includes('apple') || url.includes('itunes')) {
-      return (
-        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
-          <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z" />
-        </svg>
-      );
-    } else if (url.includes('spotify')) {
-      return (
-        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
-          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.48.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-        </svg>
-      );
-    } else if (url.includes('youtube')) {
-      return (
-        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
-          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-        </svg>
-      );
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [minimized, setMinimized] = useState(false);
+  const [audioData, setAudioData] = useState<number[]>(Array(15).fill(5));
+  const playerRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize position from localStorage or default position
+  useEffect(() => {
+    const savedPosition = localStorage.getItem('miniPlayerPosition');
+    if (savedPosition) {
+      setPosition(JSON.parse(savedPosition));
     } else {
-      // Default music icon
-      return <Volume2 className="h-4 w-4" />;
+      setPosition({ x: window.innerWidth - 280, y: window.innerHeight - 160 });
+    }
+  }, []);
+
+  // Save position to localStorage when it changes
+  useEffect(() => {
+    if (!isDragging) {
+      localStorage.setItem('miniPlayerPosition', JSON.stringify(position));
+    }
+  }, [position, isDragging]);
+
+  // Handle mouse down for dragging
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (dragRef.current && dragRef.current.contains(e.target as Node)) {
+      setIsDragging(true);
+      // Calculate the offset of the mouse from the top-left of the player
+      const rect = playerRef.current?.getBoundingClientRect();
+      if (rect) {
+        setDragOffset({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        });
+      }
     }
   };
 
+  // Handle mouse move for dragging
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        const newX = Math.max(0, Math.min(window.innerWidth - 280, e.clientX - dragOffset.x));
+        const newY = Math.max(0, Math.min(window.innerHeight - 120, e.clientY - dragOffset.y));
+        setPosition({ x: newX, y: newY });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragOffset]);
+
+  // Generate audio visualization
+  useEffect(() => {
+    if (isPlaying) {
+      const timer = setInterval(() => {
+        // Generate random heights for the audio bars when music is playing
+        setAudioData(Array(15).fill(0).map(() => Math.floor(Math.random() * 20) + 5));
+      }, 200);
+      return () => clearInterval(timer);
+    }
+  }, [isPlaying]);
+
   return (
-    <Card className="fixed bottom-4 right-4 z-50 w-64 shadow-lg animate-slideUp">
-      <CardContent className="p-3">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            {getSourceLogo()}
-            <span className="text-xs font-medium">Now Playing</span>
+    <div 
+      ref={playerRef}
+      className="fixed z-50 transition-all"
+      style={{ 
+        left: `${position.x}px`, 
+        top: `${position.y}px`,
+        cursor: isDragging ? 'grabbing' : 'default',
+      }}
+      onMouseDown={handleMouseDown}
+    >
+      <Card className={`shadow-lg w-64 ${isDragging ? 'opacity-80' : 'opacity-100'}`}>
+        <div 
+          ref={dragRef} 
+          className="h-6 bg-muted/50 rounded-t-lg flex items-center justify-between px-2 cursor-grab"
+        >
+          <div className="flex items-center">
+            <GripVertical className="h-3 w-3 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground ml-1">Drag to move</span>
           </div>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onClose}>
-            <X className="h-3 w-3" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-4 w-4 p-0" 
+              onClick={() => setMinimized(!minimized)}
+            >
+              {minimized ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            </Button>
+            <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={onClose}>
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="h-8 w-8"
-            onClick={togglePlay}
-          >
-            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-          </Button>
-          
-          <div className="flex-1 space-y-1">
+        {!minimized && (
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 mb-3">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-8 w-8"
+                onClick={togglePlay}
+              >
+                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              </Button>
+              
+              <div className="flex-1">
+                <div className="h-8 flex items-center justify-center gap-[2px]">
+                  {audioData.map((height, index) => (
+                    <div 
+                      key={index}
+                      className="w-1 bg-gradient-to-t from-purple-500 to-blue-500 rounded-full transition-all duration-200"
+                      style={{ 
+                        height: isPlaying ? `${height}px` : '2px',
+                        opacity: isPlaying ? 1 : 0.5
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              <Volume2 className="h-4 w-4 text-muted-foreground" />
+            </div>
+            
             <div className="flex items-center gap-2">
               <Slider 
                 value={volume} 
@@ -96,9 +186,9 @@ export const MusicMiniPlayer: React.FC<MusicMiniPlayerProps> = ({
                 onChange={handleVolumeInput}
               />
             </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        )}
+      </Card>
+    </div>
   );
 };

@@ -13,23 +13,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { MusicMiniPlayer } from '@/components/MusicMiniPlayer';
 
-const musicSourceOptions = [
-  { id: 'apple', name: 'Apple Music', placeholder: 'Enter Apple Music URL' },
-  { id: 'spotify', name: 'Spotify', placeholder: 'Enter Spotify URL' },
-  { id: 'youtube', name: 'YouTube Music', placeholder: 'Enter YouTube Music URL' },
-  { id: 'custom', name: 'Custom URL', placeholder: 'Enter audio file URL (.mp3, .wav, etc.)' }
-];
-
 export function CursorCustomizer() {
   const { setUserName, userName, setShowCanvas, showCanvas } = useCursor();
   const [nameInput, setNameInput] = useState(userName);
   const [open, setOpen] = useState(false);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [customAudioUrl, setCustomAudioUrl] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState([75]);
-  const [selectedMusicSource, setSelectedMusicSource] = useState('custom');
   const [showMiniPlayer, setShowMiniPlayer] = useState(false);
   const { toast } = useToast();
   const audioRef = React.useRef<HTMLAudioElement>(null);
@@ -81,18 +72,6 @@ export function CursorCustomizer() {
       toast({
         title: "Music uploaded",
         description: "Your background music has been set",
-      });
-    }
-  };
-
-  const handleCustomUrlAdd = () => {
-    if (customAudioUrl.trim()) {
-      setAudioUrl(customAudioUrl);
-      localStorage.setItem('backgroundMusicUrl', customAudioUrl);
-      setShowMiniPlayer(true);
-      toast({
-        title: "Music URL added",
-        description: "Your background music has been set from URL",
       });
     }
   };
@@ -161,7 +140,11 @@ export function CursorCustomizer() {
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-gradient-to-r from-purple-600 to-blue-500 p-2 text-white">
-                  <Sparkles className="h-5 w-5" />
+                  <img 
+                    src="/lovable-uploads/87a385cb-2f7a-4986-9a8b-eebcdfe682f2.png" 
+                    alt="Zymatric Logo" 
+                    className="h-5 w-5"
+                  />
                 </div>
                 <div>
                   <h3 className="font-medium text-sm">Welcome to Zymatric</h3>
@@ -205,43 +188,15 @@ export function CursorCustomizer() {
             </div>
             
             <div className="grid gap-2">
-              <Label htmlFor="music-source">Music Source</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {musicSourceOptions.map(source => (
-                  <Button
-                    key={source.id}
-                    variant={selectedMusicSource === source.id ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedMusicSource(source.id)}
-                    className="justify-start"
-                  >
-                    {source.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="grid gap-2">
               <Label htmlFor="music-upload">Background Music</Label>
-              {selectedMusicSource === 'custom' && (
-                <div className="flex gap-2">
-                  <Input
-                    id="music-upload"
-                    type="file"
-                    accept="audio/*"
-                    onChange={handleFileChange}
-                    className="flex-1"
-                  />
-                </div>
-              )}
-              
-              <div className="flex gap-2 mt-2">
+              <div className="flex gap-2">
                 <Input
-                  placeholder={musicSourceOptions.find(source => source.id === selectedMusicSource)?.placeholder || "Enter audio URL"}
-                  value={customAudioUrl}
-                  onChange={(e) => setCustomAudioUrl(e.target.value)}
+                  id="music-upload"
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleFileChange}
+                  className="flex-1"
                 />
-                <Button onClick={handleCustomUrlAdd}>Add</Button>
               </div>
               
               {audioUrl && (
