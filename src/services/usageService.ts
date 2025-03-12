@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -53,6 +52,7 @@ export const useUsageService = () => {
       let query = supabase
         .from('usage_logs')
         .select('*')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
         .gte('recorded_at', startDate.toISOString());
 
       if (activityType) {

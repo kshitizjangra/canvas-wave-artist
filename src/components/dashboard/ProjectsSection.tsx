@@ -73,7 +73,8 @@ export const ProjectsSection = ({ projects, onRefresh }: ProjectsSectionProps) =
           {projects.map((project) => (
             <ProjectCard 
               key={project.id} 
-              project={project} 
+              project={project}
+              onDelete={onRefresh}
             />
           ))}
         </div>

@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
@@ -15,6 +14,16 @@ type AuthContextType = {
     error: Error | null;
   }>;
   signOut: () => Promise<void>;
+  updateProfile: (updates: { 
+    email?: string; 
+    password?: string;
+    data?: {
+      full_name?: string;
+      username?: string;
+    }
+  }) => Promise<{
+    error: Error | null;
+  }>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,11 +35,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get session and subscribe to changes
     const getSession = async () => {
       setLoading(true);
       
-      // Get current session
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
@@ -40,7 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     getSession();
     
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
@@ -87,13 +93,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     navigate("/auth");
   };
 
+  const updateProfile = async (updates: { 
+    email?: string; 
+    password?: string;
+    data?: {
+      full_name?: string;
+      username?: string;
+    }
+  }) => {
+    try {
+      let error = null;
+      
+      if (updates.email || updates.password) {
+        const { error: authError } = await supabase.auth.updateUser({
+          email: updates.email,
+          password: updates.password,
+        });
+        error = authError;
+      }
+
+      if (updates.data && !error) {
+        const { error: metaError } = await supabase.auth.updateUser({
+          data: updates.data
+        });
+        error = metaError;
+      }
+
+      if (error) throw error;
+      
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
+
   const value = {
     session,
     user,
     loading,
     signIn,
     signUp,
-    signOut
+    signOut,
+    updateProfile
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
