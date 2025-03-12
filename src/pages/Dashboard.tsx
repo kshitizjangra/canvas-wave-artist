@@ -13,6 +13,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { AreaChart, Area } from "recharts";
+import { useToast } from "@/hooks/use-toast";
+import { ProjectsSection } from "@/components/dashboard/ProjectsSection";
+import { useProjectService, Project } from "@/services/projectService";
+import { useUsageService, UsageData } from "@/services/usageService";
 import { 
   ChartPie, 
   Users, 
@@ -26,28 +30,6 @@ import {
   CheckCircle,
   Sparkles
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-
-// Sample data for charts
-const performanceData = [
-  { name: 'Jan', value: 65 },
-  { name: 'Feb', value: 59 },
-  { name: 'Mar', value: 80 },
-  { name: 'Apr', value: 81 },
-  { name: 'May', value: 56 },
-  { name: 'Jun', value: 55 },
-  { name: 'Jul', value: 40 },
-];
-
-const usageData = [
-  { name: 'Mon', value: 4000 },
-  { name: 'Tue', value: 3000 },
-  { name: 'Wed', value: 2000 },
-  { name: 'Thu', value: 2780 },
-  { name: 'Fri', value: 1890 },
-  { name: 'Sat', value: 2390 },
-  { name: 'Sun', value: 3490 },
-];
 
 // Create Dashboard sidebar component
 const DashboardSidebar = () => {
@@ -189,7 +171,61 @@ export const DashboardHeader = () => {
 // Create central panel tabs
 const DashboardContent = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [usageData, setUsageData] = useState<UsageData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const projectService = useProjectService();
+  const usageService = useUsageService();
   const { toast } = useToast();
+  
+  const fetchProjects = async () => {
+    setIsLoading(true);
+    const projectData = await projectService.getProjects();
+    setProjects(projectData);
+    setIsLoading(false);
+  };
+  
+  const fetchUsageData = async () => {
+    const data = await usageService.getUsageData(30);
+    setUsageData(data.length > 0 ? data : generateDummyUsageData());
+  };
+  
+  // Generate some data if no real data exists yet
+  const generateDummyUsageData = (): UsageData[] => {
+    const data: UsageData[] = [];
+    const today = new Date();
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      data.push({
+        date: date.toISOString().split('T')[0],
+        value: Math.floor(Math.random() * 4000) + 1000,
+      });
+    }
+    
+    return data.reverse();
+  };
+  
+  // Format data for charts
+  const formatChartData = (data: UsageData[]) => {
+    return data.map(item => ({
+      name: item.date.split('-')[2], // Just the day
+      value: item.value,
+    }));
+  };
+  
+  useEffect(() => {
+    fetchProjects();
+    fetchUsageData();
+    
+    // Log usage for this dashboard session
+    const startTime = Date.now();
+    return () => {
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+      usageService.logUsage(duration, 'dashboard_view');
+    };
+  }, []);
   
   const handleDownload = () => {
     toast({
@@ -206,10 +242,7 @@ const DashboardContent = () => {
   };
   
   const handleCreateProject = () => {
-    toast({
-      title: "New Project Created",
-      description: "Your new project has been created successfully."
-    });
+    setActiveTab("projects");
   };
 
   return (
@@ -236,7 +269,7 @@ const DashboardContent = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
+        <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab} value={activeTab}>
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
@@ -251,11 +284,13 @@ const DashboardContent = () => {
                   <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">12</div>
-                  <p className="text-xs text-muted-foreground">+2 since last month</p>
+                  <div className="text-2xl font-bold">{projects.length}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {projects.length > 0 ? "+1 since last month" : "Create your first project"}
+                  </p>
                   <div className="h-[80px] mt-4">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={performanceData}>
+                      <AreaChart data={formatChartData(usageData.slice(-7))}>
                         <Area type="monotone" dataKey="value" stroke="#8884d8" fill="#8884d8" />
                       </AreaChart>
                     </ResponsiveContainer>
@@ -268,11 +303,15 @@ const DashboardContent = () => {
                   <CardTitle className="text-sm font-medium">Active Collaborators</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">8</div>
-                  <p className="text-xs text-muted-foreground">+3 since last month</p>
+                  <div className="text-2xl font-bold">
+                    {Math.min(projects.length * 2, 8)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {projects.length > 0 ? "+3 since last month" : "Add collaborators to your projects"}
+                  </p>
                   <div className="h-[80px] mt-4">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={usageData}>
+                      <LineChart data={formatChartData(usageData.slice(-7))}>
                         <Line type="monotone" dataKey="value" stroke="#82ca9d" strokeWidth={2} dot={false} />
                       </LineChart>
                     </ResponsiveContainer>
@@ -285,11 +324,15 @@ const DashboardContent = () => {
                   <CardTitle className="text-sm font-medium">Usage Time</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">32.5 hrs</div>
-                  <p className="text-xs text-muted-foreground">+5.2 hrs since last month</p>
+                  <div className="text-2xl font-bold">
+                    {Math.floor(usageData.reduce((acc, curr) => acc + curr.value, 0) / 3600)} hrs
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {projects.length > 0 ? "+5.2 hrs since last month" : "Start using the platform"}
+                  </p>
                   <div className="h-[80px] mt-4">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={usageData}>
+                      <BarChart data={formatChartData(usageData.slice(-7))}>
                         <Bar dataKey="value" fill="#8884d8" radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -307,7 +350,7 @@ const DashboardContent = () => {
                 <CardContent>
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={performanceData}>
+                      <LineChart data={formatChartData(usageData)}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
@@ -322,42 +365,10 @@ const DashboardContent = () => {
           </TabsContent>
           
           <TabsContent value="projects" className="mt-6">
-            <div className="bg-background/80 backdrop-blur-sm p-6 rounded-lg border shadow-sm">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Recent Projects</h2>
-                <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs text-white">KJ</div>
-                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs text-white">AB</div>
-                  <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-xs text-white">CD</div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { id: 1, name: "Quadratic Functions", updated: "2 days ago", progress: "70%" },
-                  { id: 2, name: "Linear Algebra", updated: "5 days ago", progress: "45%" },
-                  { id: 3, name: "Calculus Basics", updated: "1 week ago", progress: "90%" },
-                  { id: 4, name: "Statistical Analysis", updated: "2 weeks ago", progress: "30%" },
-                  { id: 5, name: "Probability Theory", updated: "3 weeks ago", progress: "60%" },
-                  { id: 6, name: "Differential Equations", updated: "1 month ago", progress: "85%" }
-                ].map((project) => (
-                  <Card key={project.id} className="hover:shadow-md transition-shadow">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-md">{project.name}</CardTitle>
-                      <CardDescription>Last edited {project.updated}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center">
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2">
-                          <div className="bg-primary h-2.5 rounded-full" style={{ width: project.progress }}></div>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{project.progress}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
+            <ProjectsSection 
+              projects={projects}
+              onRefresh={fetchProjects}
+            />
           </TabsContent>
           
           <TabsContent value="analytics" className="mt-6">
@@ -370,7 +381,7 @@ const DashboardContent = () => {
                 <CardContent>
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={usageData}>
+                      <BarChart data={formatChartData(usageData)}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
@@ -390,7 +401,7 @@ const DashboardContent = () => {
                 <CardContent>
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={performanceData}>
+                      <LineChart data={formatChartData(usageData)}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
